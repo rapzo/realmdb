@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "@realmdb/api",
   "packageManager": "yarn@3.6.1",
   "private": true
 }
