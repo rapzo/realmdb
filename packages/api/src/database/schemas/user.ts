@@ -1,6 +1,6 @@
 import { pbkdf2 } from "crypto"
 import { Schema } from "mongoose"
-import type { Types } from "mongoose"
+import type { Document, Types } from "mongoose"
 
 const { AUTH_SALT, AUTH_ITERATIONS, AUTH_HASH_LENGTH, AUTH_DIGEST } =
   process.env
@@ -9,13 +9,13 @@ if (!AUTH_SALT || !AUTH_ITERATIONS || !AUTH_HASH_LENGTH || !AUTH_DIGEST) {
   throw new Error("Bad environment configuration")
 }
 
-export interface UserSchema {
+export interface UserSchema extends Document<Types.ObjectId> {
   _id: Types.ObjectId
   firstName: string
   lastName: string
   email: string
-  avatar: string
-  passwordhash: string
+  password: string
+  avatar?: string
   recoveryToken?: string
   recoveryTokenExpiresAt?: Date
   active: boolean
@@ -47,9 +47,15 @@ export const user = new Schema<UserSchema>(
       minlength: 5,
       maxlength: 255,
       unique: true,
+      indexes: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: 8,
+      maxlength: 64,
     },
     avatar: String,
-    passwordhash: String,
     recoveryToken: String,
     recoveryTokenExpiresAt: Date,
     active: {
@@ -65,9 +71,8 @@ export const user = new Schema<UserSchema>(
   },
 )
 
-user
-  .virtual("password")
-  .set(function (password: string) {
+const createPasswordHash = (password: string): Promise<string> =>
+  new Promise((resolve, reject) => {
     pbkdf2(
       password,
       AUTH_SALT,
@@ -75,11 +80,20 @@ user
       Number(AUTH_HASH_LENGTH),
       AUTH_DIGEST,
       (err, derivedKey) => {
-        if (err) throw err
-        this.passwordhash = derivedKey.toString("hex")
+        if (err) return reject(err)
+        resolve(derivedKey.toString("hex"))
       },
     )
   })
-  .get(function () {
-    return this.passwordhash
-  })
+
+user.pre<UserSchema>("save", function (next) {
+  if (this.isModified("password")) {
+    createPasswordHash(this.password)
+      .then((hash) => {
+        this.password = hash
+        return next()
+      })
+      .catch(next)
+  }
+  next()
+})
