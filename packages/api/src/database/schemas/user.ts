@@ -88,7 +88,7 @@ const createPasswordHash = (password: string): Promise<string> =>
 
 user.pre<UserSchema>("save", function (next) {
   if (this.isModified("password")) {
-    createPasswordHash(this.password)
+    return createPasswordHash(this.password)
       .then((hash) => {
         this.password = hash
         return next()
