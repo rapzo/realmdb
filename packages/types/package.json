@@ -1,0 +1,5 @@
+{
+  "name": "@realmdb/types",
+  "main": "src/index.ts",
+  "packageManager": "yarn@3.6.1"
+}

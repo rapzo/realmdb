@@ -8,3 +8,8 @@
 .pnp.*
 
 node_modules/
+
+data/
+dist/
+
+.env
