@@ -15,10 +15,11 @@
     "@mui/material": "^5.13.7",
     "@mui/styled-engine": "npm:@mui/styled-engine-sc@^5.12.0",
     "@mui/styled-engine-sc": "^5.12.0",
-    "@realmdb/interfaces": "workspace:*",
+    "@realmdb/schemas": "workspace:*",
     "axios": "^1.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hook-form": "^7.45.1",
     "react-router-dom": "^6.14.1",
     "styled-components": "^6.0.3"
   },

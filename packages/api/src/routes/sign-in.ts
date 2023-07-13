@@ -1,10 +1,16 @@
-import { RequestHandler } from "express"
-import type { UserSchema } from "../database/schemas/user"
-import type { Model } from "mongoose"
+import type { Request, Response } from "express"
+import type { UserModel } from "../database"
 
-export const signIn =
-  ({ User }: Model<UserSchema>): RequestHandler =>
-  async (req, res) => {
+export interface SignInRequest extends Request {
+  body: {
+    email: string
+    password: string
+  }
+}
+
+export const createSignIn =
+  ({ User }: { User: UserModel }) =>
+  (req: SignInRequest, res: Response) => {
     const { email, password } = req.body
 
     if (!email || !password) {
@@ -13,25 +19,34 @@ export const signIn =
       })
     }
 
-    const user = await User.findOne({ email }).exec()
+    const signIn = async () => {
+      const user = await User.findOne({ email }).exec()
 
-    if (!user) {
-      return res.status(401).json({
-        error: "Unauthorized",
+      if (!user) {
+        return res.status(401).json({
+          error: "Unauthorized",
+        })
+      }
+
+      const isMatch = await user.comparePassword(password)
+
+      if (!isMatch) {
+        return res.status(401).json({
+          error: "Unauthorized",
+        })
+      }
+
+      const token = await user.generateToken()
+
+      return res.json({
+        token,
       })
     }
 
-    const isMatch = await user.comparePassword(password)
-
-    if (!isMatch) {
-      return res.status(401).json({
-        error: "Unauthorized",
+    signIn().catch((error: Error) => {
+      console.error(error)
+      return res.status(500).json({
+        error: error.message,
       })
-    }
-
-    const token = await user.generateToken()
-
-    return res.json({
-      token,
     })
   }

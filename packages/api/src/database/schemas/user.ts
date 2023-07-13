@@ -3,7 +3,7 @@ import {
   // timingSafeEqual
 } from "crypto"
 import { Schema } from "mongoose"
-import type { Document, Types } from "mongoose"
+import type { Document, Model, Types } from "mongoose"
 
 const { AUTH_SALT, AUTH_ITERATIONS, AUTH_HASH_LENGTH, AUTH_DIGEST } =
   process.env
@@ -25,7 +25,12 @@ export interface UserSchema extends Document<Types.ObjectId> {
   createdAt: Date
   updatedAt: Date
   deletedAt?: Date
+
+  comparePassword: (password: string) => Promise<boolean>
+  generateToken: () => Promise<string>
 }
+
+export type UserModel = Model<UserSchema>
 
 export const user = new Schema<UserSchema>(
   {
@@ -106,3 +111,18 @@ user.pre<UserSchema>("save", function (next) {
 // user.methods.comparePassword = function (password: string): Promise<boolean> {
 //   return createPasswordHash(password).then((digest) => timingSafeEqual(this.password, digest))
 // }
+
+user.methods.generateToken = function (): Promise<string> {
+  return Promise.resolve("token")
+}
+
+user.methods.comparePassword = async function (
+  password: string,
+): Promise<boolean> {
+  try {
+    const digest = await createPasswordHash(password)
+    return this.password === digest.toString("hex")
+  } catch (err) {
+    return false
+  }
+}

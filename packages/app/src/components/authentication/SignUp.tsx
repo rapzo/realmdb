@@ -12,6 +12,7 @@ import {
 } from "@mui/material"
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined"
 import { AppBar } from "../layout/AppBar"
+import { Link as RoutedLink } from "../navigation/link"
 
 export const SignUp = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -109,7 +110,7 @@ export const SignUp = () => {
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link variant="body2" to={"/sign-in"} component={RoutedLink}>
                   Already have an account? Sign in
                 </Link>
               </Grid>

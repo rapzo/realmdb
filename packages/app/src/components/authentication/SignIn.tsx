@@ -14,6 +14,7 @@ import {
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined"
 import { styled } from "@mui/system"
 import { AppBar } from "../layout/AppBar"
+import { Link as RoutedLink } from "../navigation/link"
 
 interface StyledBoxProps extends BoxProps {
   component?: React.ElementType<React.HTMLAttributes<HTMLDivElement>>
@@ -88,12 +89,12 @@ export function SignIn() {
             </Button>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">
+                <Link variant="body2" to={"#"} component={RoutedLink}>
                   Forgot password?
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link variant="body2" to="/sign-up" component={RoutedLink}>
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>
