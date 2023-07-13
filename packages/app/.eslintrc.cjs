@@ -25,4 +25,5 @@ module.exports = {
     ],
     "@typescript-eslint/no-non-null-assertion": "off",
   },
+  "max-len": ["error", { code: 90, ignoreComments: true }],
 }
