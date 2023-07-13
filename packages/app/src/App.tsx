@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { name } from "@realmdb/types"
+import { name } from "@realmdb/interfaces"
 
 function App() {
   const [count, setCount] = useState(0)

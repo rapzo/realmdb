@@ -1,4 +1,7 @@
-import { pbkdf2 } from "crypto"
+import {
+  pbkdf2,
+  // timingSafeEqual
+} from "crypto"
 import { Schema } from "mongoose"
 import type { Document, Types } from "mongoose"
 
@@ -71,7 +74,7 @@ export const user = new Schema<UserSchema>(
   },
 )
 
-const createPasswordHash = (password: string): Promise<string> =>
+export const createPasswordHash = (password: string): Promise<Buffer> =>
   new Promise((resolve, reject) => {
     pbkdf2(
       password,
@@ -81,7 +84,7 @@ const createPasswordHash = (password: string): Promise<string> =>
       AUTH_DIGEST,
       (err, derivedKey) => {
         if (err) return reject(err)
-        resolve(derivedKey.toString("hex"))
+        resolve(derivedKey)
       },
     )
   })
@@ -89,11 +92,17 @@ const createPasswordHash = (password: string): Promise<string> =>
 user.pre<UserSchema>("save", function (next) {
   if (this.isModified("password")) {
     return createPasswordHash(this.password)
-      .then((hash) => {
-        this.password = hash
+      .then((digest: Buffer) => {
+        this.password = digest.toString("hex")
+
         return next()
       })
       .catch(next)
   }
   next()
 })
+
+// @TODO use this method to compare passwords
+// user.methods.comparePassword = function (password: string): Promise<boolean> {
+//   return createPasswordHash(password).then((digest) => timingSafeEqual(this.password, digest))
+// }

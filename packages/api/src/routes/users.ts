@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { Model } from "mongoose"
-import type { UserSchema } from "../schemas/user"
+import type { UserSchema } from "../database/schemas/user"
 
 export const createUsersRouter = ({
   User,

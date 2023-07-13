@@ -7,9 +7,7 @@
     "app:dev": "yarn workspace @realmdb/app dev"
   },
   "workspaces": [
-    "packages/types",
-    "packages/api",
-    "packages/app"
+    "packages/*"
   ],
   "devDependencies": {
     "eslint": "^8.44.0",
