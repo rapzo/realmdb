@@ -1,5 +1,6 @@
-import type { Request, Response } from "express"
+import type { NextFunction, Request, Response } from "express"
 import type { UserModel } from "../database"
+import { createAuthentication } from "../middleware/authentication"
 
 export interface SignInRequest extends Request {
   body: {
@@ -8,45 +9,26 @@ export interface SignInRequest extends Request {
   }
 }
 
-export const createSignIn =
-  ({ User }: { User: UserModel }) =>
-  (req: SignInRequest, res: Response) => {
-    const { email, password } = req.body
+export const createSignIn = ({ User }: { User: UserModel }) => {
+  const authenticate = createAuthentication({ User })
 
-    if (!email || !password) {
-      return res.status(400).json({
-        error: "Bad Request",
-      })
-    }
-
-    const signIn = async () => {
-      const user = await User.findOne({ email }).exec()
+  return (req: SignInRequest, res: Response, next: NextFunction) => {
+    const handler = authenticate((error, user, _info) => {
+      if (error) {
+        return next(error)
+      }
 
       if (!user) {
         return res.status(401).json({
-          error: "Unauthorized",
+          error: "Invalid credentials",
         })
       }
 
-      const isMatch = await user.comparePassword(password)
-
-      if (!isMatch) {
-        return res.status(401).json({
-          error: "Unauthorized",
-        })
-      }
-
-      const token = await user.generateToken()
-
-      return res.json({
-        token,
-      })
-    }
-
-    signIn().catch((error: Error) => {
-      console.error(error)
-      return res.status(500).json({
-        error: error.message,
+      res.json({
+        ...user,
       })
     })
+
+    handler(req, res, next)
   }
+}

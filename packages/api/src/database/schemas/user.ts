@@ -79,7 +79,7 @@ export const user = new Schema<UserSchema>(
   },
 )
 
-export const createPasswordHash = (password: string): Promise<Buffer> =>
+export const createPassword = (password: string): Promise<Buffer> =>
   new Promise((resolve, reject) => {
     pbkdf2(
       password,
@@ -94,11 +94,14 @@ export const createPasswordHash = (password: string): Promise<Buffer> =>
     )
   })
 
+export const createPasswordHash = async (password: string): Promise<string> =>
+  (await createPassword(password)).toString("hex")
+
 user.pre<UserSchema>("save", function (next) {
   if (this.isModified("password")) {
     return createPasswordHash(this.password)
-      .then((digest: Buffer) => {
-        this.password = digest.toString("hex")
+      .then((password: string) => {
+        this.password = password
 
         return next()
       })
@@ -120,8 +123,8 @@ user.methods.comparePassword = async function (
   password: string,
 ): Promise<boolean> {
   try {
-    const digest = await createPasswordHash(password)
-    return this.password === digest.toString("hex")
+    const hashedPassword = await createPasswordHash(password)
+    return this.password === hashedPassword
   } catch (err) {
     return false
   }

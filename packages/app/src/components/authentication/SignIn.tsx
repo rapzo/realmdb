@@ -15,6 +15,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined"
 import { styled } from "@mui/system"
 import { AppBar } from "../layout/AppBar"
 import { Link as RoutedLink } from "../navigation/link"
+import axios from "axios"
 
 interface StyledBoxProps extends BoxProps {
   component?: React.ElementType<React.HTMLAttributes<HTMLDivElement>>
@@ -36,6 +37,24 @@ export function SignIn() {
       email: data.get("email"),
       password: data.get("password"),
     })
+
+    axios
+      .post(
+        "http://localhost:3000/signin",
+        {
+          email: data.get("email"),
+          password: data.get("password"),
+        },
+        {
+          withCredentials: true,
+        },
+      )
+      .then((response) => {
+        console.log(response)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
   }
 
   return (
