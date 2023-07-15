@@ -1,7 +1,16 @@
 import passport from "passport"
 import { Strategy } from "passport-local"
 import type { UserModel } from "../../database"
-import type { Handler } from "express"
+import type { Handler, Request } from "express"
+
+export interface SignUpRequest extends Request {
+  body: {
+    firstName: string
+    lastName: string
+    email: string
+    password: string
+  }
+}
 
 const STRAGEY_NAME = "SIGN_UP"
 
@@ -12,7 +21,7 @@ export const createRegistration = ({ User }: { User: UserModel }): Handler => {
       passReqToCallback: true,
       usernameField: "email",
     },
-    (req, username, password, done) => {
+    (req: SignUpRequest, username: string, password: string, done) => {
       const createUser = async () => {
         const { firstName, lastName } = req.body
 

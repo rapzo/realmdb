@@ -7,7 +7,7 @@ export const createSignUp = ({ User }: { User: UserModel }): Handler[] => [
   createRegistration({ User }),
   ({ user }: Request, res: Response) => {
     res.json({
-      user,
+      ...user,
     })
   },
 ]
