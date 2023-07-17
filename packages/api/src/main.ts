@@ -7,6 +7,7 @@ import { createConnection } from "./database"
 import { createGetUsers } from "./routes/get-users"
 import { createSignIn } from "./routes/sign-in"
 import { createSignUp } from "./routes/sign-up"
+import { createSession } from "./middleware/authentication"
 
 const { PORT = 3000, DATABASE_URL, CLIENT_URL } = process.env
 
@@ -26,14 +27,16 @@ export const main = async (): Promise<void> => {
   app.use(helmet())
   app.use(
     session({
+      name: "RealMDBSession",
       secret: "secret",
       // cookie: {
       //   secure: true,
       // },
       resave: false,
-      saveUninitialized: true,
+      saveUninitialized: false,
     }),
   )
+  app.use(createSession())
 
   app.get("/hb", (_req, res) =>
     res.json({

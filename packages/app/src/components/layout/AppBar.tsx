@@ -13,11 +13,13 @@ import {
 } from "@mui/material"
 import { MovieRounded, Menu as MenuIcon } from "@mui/icons-material"
 import { MouseEvent, useState } from "react"
+import { useSession } from "../../context/Session"
 
 const pages = ["Movies", "Favorites", "Reviews"]
-const settings = ["Profile", "Account", "Dashboard", "Logout"]
+const settings = ["Profile", "Account", "Dashboard"]
 
 export const AppBar = ({ title = "RealMDB" }: { title?: string }) => {
+  const { user, signOut } = useSession()
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null)
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null)
 
@@ -130,7 +132,10 @@ export const AppBar = ({ title = "RealMDB" }: { title?: string }) => {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar
+                  alt={`${user?.firstName} ${user?.lastName}`}
+                  src={user?.profileUrl}
+                />
               </IconButton>
             </Tooltip>
             <Menu
@@ -154,6 +159,11 @@ export const AppBar = ({ title = "RealMDB" }: { title?: string }) => {
                   <Typography textAlign="center">{setting}</Typography>
                 </MenuItem>
               ))}
+              {user ? (
+                <MenuItem onClick={signOut}>
+                  <Typography textAlign="center">Sign Out</Typography>
+                </MenuItem>
+              ) : null}
             </Menu>
           </Box>
         </Toolbar>

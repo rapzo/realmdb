@@ -1,7 +1,9 @@
-import axios from "axios"
+import axios, { type AxiosInstance } from "axios"
+
+export type Http = AxiosInstance
 
 export const http = axios.create({
-  baseURL: process.env.API_URL,
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
 })
 
@@ -26,6 +28,10 @@ export const removeAuthorizationHeader = () => {
 
 export const getAuthorizationHeader = () => {
   return http.defaults.headers.common["Authorization"]
+}
+
+export const removeCookieHeader = () => {
+  delete http.defaults.headers.common["Cookie"]
 }
 
 export const isAuthorized = () => {

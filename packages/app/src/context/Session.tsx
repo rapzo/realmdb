@@ -3,10 +3,18 @@ import {
   PropsWithChildren,
   ReactNode,
   useContext,
-  useMemo,
   useState,
 } from "react"
 import { Navigate, useLocation } from "react-router-dom"
+
+import { session } from "../services/session-service"
+
+export interface User {
+  email: string
+  firstName?: string
+  lastName?: string
+  profileUrl?: string
+}
 
 interface SessionContext {
   user: {
@@ -14,46 +22,71 @@ interface SessionContext {
     firstName?: string
     lastName?: string
     profileUrl?: string
-  }
+  } | null
 
-  resendConfirmationCode: (username: string) => Promise<void>
-  signIn: (username: string, password: string) => Promise<void>
+  // resendConfirmationCode: (username: string) => Promise<void>
+  signIn: (username: string, password: string) => Promise<User>
   signOut: () => Promise<void>
+}
+
+function readFromLocalStorage() {
+  try {
+    const user = localStorage.getItem("user")
+
+    if (user) return JSON.parse(user)
+
+    return null
+  } catch (error) {
+    console.log("error reading from local storage", error)
+
+    return null
+  }
+}
+
+function writeToLocalStorage(user: User | null) {
+  try {
+    if (!user) {
+      localStorage.removeItem("user")
+    } else {
+      localStorage.setItem("user", JSON.stringify(user))
+    }
+  } catch (error) {
+    console.log("error writing to local storage", error)
+  }
 }
 
 async function signIn(username: string, password: string) {
   try {
-    const user = await Auth.signIn(username, password)
+    const user = await session.signIn(username, password)
 
     return user
   } catch (error) {
     console.log("error signing in", error)
+
+    throw error
   }
 }
 
-async function resendConfirmationCode(username: string) {
-  try {
-    await Auth.resendSignUp(username)
-    console.log("code resent successfully")
-  } catch (err) {
-    console.log("error resending code: ", err)
-  }
-}
+// async function resendConfirmationCode(username: string) {
+//   try {
+//     await session.resendSignUp(username)
+//     console.log("code resent successfully")
+//   } catch (err) {
+//     console.log("error resending code: ", err)
+//   }
+// }
 
 async function signOut() {
   try {
-    await Auth.signOut()
+    await session.signOut()
   } catch (error) {
     console.log("error signing out: ", error)
   }
 }
 
 const sessionContext = createContext<SessionContext>({
-  user: {
-    email: "",
-    username: "",
-  },
-  resendConfirmationCode,
+  user: null,
+  // resendConfirmationCode,
   signIn,
   signOut,
 })
@@ -65,44 +98,45 @@ export function useSession() {
 
 export function SessionProvider(props: PropsWithChildren<{}>) {
   const [user, setUser] = useState<{
-    username: string
     email: string
-  }>({
-    username: "",
-    email: "",
-  })
+    firstName?: string
+    lastName?: string
+    profileUrl?: string
+  } | null>(readFromLocalStorage())
 
-  const value = useMemo<SessionContext>(
-    () => ({
-      user,
+  const value = {
+    user,
 
-      resendConfirmationCode,
+    // resendConfirmationCode,
 
-      signIn: async (username, password) => {
-        const user = await signIn(username, password)
-        setUser(user)
-      },
+    async signIn(username: string, password: string) {
+      const user = await signIn(username, password)
 
-      signOut: async () => {
-        await signOut()
-        setUser({
-          username: "",
-          email: "",
-        })
-      },
-    }),
-    [resendConfirmationCode, signIn, signOut],
-  )
+      setUser(user)
+
+      writeToLocalStorage(user)
+
+      return user
+    },
+
+    async signOut() {
+      await signOut()
+
+      setUser(null)
+
+      writeToLocalStorage(null)
+    },
+  }
 
   return <Provider value={value} {...props} />
 }
 
-export function RequireAuth({ children }: { children: ReactNode }) {
-  const auth = useSession()
+export function RequireSession({ children }: { children: ReactNode }) {
+  const { user } = useSession()
   const location = useLocation()
 
-  if (!auth.user) {
-    return <Navigate to="/signin" state={{ from: location }} />
+  if (!user) {
+    return <Navigate to="/signin" state={{ from: location }} replace />
   }
 
   return children

@@ -45,20 +45,5 @@ export const createAuthentication = ({ User }: { User: UserModel }) => {
 
   passport.use(STRAGEY_NAME, strategy)
 
-  passport.serializeUser((user, done) => {
-    console.log("serializeUser", user)
-    done(null, user)
-  })
-
-  passport.deserializeUser((user, done) => {
-    console.log("deserializeUser", user)
-
-    if (!user) {
-      return done(null, false)
-    }
-
-    done(null, user)
-  })
-
   return passport.authenticate(STRAGEY_NAME) as Handler
 }
