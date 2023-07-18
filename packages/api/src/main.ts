@@ -1,13 +1,13 @@
 import express from "express"
 import helmet from "helmet"
 import cors from "cors"
-import session from "express-session"
 
 import { createConnection } from "./database"
 import { createGetUsers } from "./routes/get-users"
 import { createSignIn } from "./routes/sign-in"
 import { createSignUp } from "./routes/sign-up"
-import { createSession } from "./middleware/authentication"
+import { createGetProfile } from "./routes/profile"
+import { createAuthentication, createJWT } from "./middleware/authentication"
 
 const { PORT = 3000, DATABASE_URL, CLIENT_URL } = process.env
 
@@ -25,28 +25,15 @@ export const main = async (): Promise<void> => {
   )
   app.use(express.json())
   app.use(helmet())
-  app.use(
-    session({
-      name: "RealMDBSession",
-      secret: "secret",
-      // cookie: {
-      //   secure: true,
-      // },
-      resave: false,
-      saveUninitialized: false,
-    }),
-  )
-  app.use(createSession())
 
-  app.get("/hb", (_req, res) =>
-    res.json({
-      name,
-      status: "ok",
-    }),
-  )
+  const authentication = createAuthentication({ User })
+  const isAuthenticated = createJWT({ User })
 
-  app.post("/signin", createSignIn({ User }))
+  app.get("/hb", (_req, res) => res.json({ status: "ok" }))
+
+  app.post("/signin", authentication, createSignIn())
   app.post("/signup", createSignUp({ User }))
+  app.get("/profile", isAuthenticated, createGetProfile({ User }))
   app.get("/users", createGetUsers({ User }))
 
   app.listen(PORT, () => console.log(`Listening on port ${PORT}`))

@@ -31,7 +31,7 @@ const StyledBox = styled(Box)<StyledBoxProps>((_props) => {
 })
 
 export function SignIn() {
-  const { user, signIn } = useSession()
+  const { signIn } = useSession()
   const navigate = useNavigate()
   const location = useLocation()
 

@@ -1,13 +1,27 @@
-import { type Http, http, removeCookieHeader } from "../providers/http"
+import { type Http, http, setAuthorizationHeader } from "../providers/http"
+
+export interface SignInRequest {
+  email: string
+  password: string
+}
 
 export interface SignInResponse {
   email: string
+  firstName: string
+  lastName: string
+  token: string
+}
+
+export interface SignUpRequest {
+  email: string
+  password: string
   firstName: string
   lastName: string
 }
 
 export interface SignUpResponse {
   email: string
+  password: string
   firstName: string
   lastName: string
 }
@@ -16,14 +30,15 @@ export class SessionService {
   constructor(private readonly http: Http) {}
 
   async signIn(email: string, password: string): Promise<SignInResponse> {
-    removeCookieHeader()
-    const response = await this.http.post<
-      {
-        email: string
-        password: string
-      },
-      SignInResponse
-    >("/signin", { email, password })
+    const response = await this.http.post<SignInRequest, SignInResponse>(
+      "/signin",
+      { email, password },
+    )
+
+    const { token } = response
+
+    // Set the Authorization header for the http provider
+    setAuthorizationHeader(token)
 
     return response
   }
@@ -34,17 +49,17 @@ export class SessionService {
     firstName: string,
     lastName: string,
   ): Promise<SignUpResponse> {
-    removeCookieHeader()
-    const response = await this.http.post("/signup", {
-      email,
-      password,
-      firstName,
-      lastName,
-    })
+    const response = await this.http.post<SignUpRequest, SignUpResponse>(
+      "/signup",
+      {
+        email,
+        password,
+        firstName,
+        lastName,
+      },
+    )
 
-    const { data } = response
-
-    return data
+    return response
   }
 
   async signOut() {

@@ -43,21 +43,33 @@ function readFromLocalStorage() {
   }
 }
 
-function writeToLocalStorage(user: User | null) {
+function writeToLocalStorage(data: Record<string, unknown>) {
   try {
-    if (!user) {
-      localStorage.removeItem("user")
-    } else {
-      localStorage.setItem("user", JSON.stringify(user))
+    const keys = Object.keys(data)
+
+    if (keys.length === 0) return
+
+    for (const key in data) {
+      localStorage.setItem(key, JSON.stringify(data[key]))
     }
   } catch (error) {
     console.log("error writing to local storage", error)
   }
 }
 
+function clearLocalStorage() {
+  try {
+    localStorage.clear()
+  } catch (error) {
+    console.log("error clearing local storage", error)
+  }
+}
+
 async function signIn(username: string, password: string) {
   try {
-    const user = await session.signIn(username, password)
+    const { token, ...user } = await session.signIn(username, password)
+
+    writeToLocalStorage({ user, token })
 
     return user
   } catch (error) {
@@ -79,6 +91,8 @@ async function signIn(username: string, password: string) {
 async function signOut() {
   try {
     await session.signOut()
+
+    clearLocalStorage()
   } catch (error) {
     console.log("error signing out: ", error)
   }
@@ -114,8 +128,6 @@ export function SessionProvider(props: PropsWithChildren<{}>) {
 
       setUser(user)
 
-      writeToLocalStorage(user)
-
       return user
     },
 
@@ -123,8 +135,6 @@ export function SessionProvider(props: PropsWithChildren<{}>) {
       await signOut()
 
       setUser(null)
-
-      writeToLocalStorage(null)
     },
   }
 

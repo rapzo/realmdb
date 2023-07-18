@@ -1,6 +1,7 @@
 import passport from "passport"
 import { Strategy } from "passport-local"
 import { createPasswordHash, type UserModel } from "../../database"
+import { createToken } from "./jwt"
 import type { Handler, Request } from "express"
 
 export interface SignInRequest extends Request {
@@ -15,14 +16,13 @@ const STRAGEY_NAME = "SIGN_IN"
 export const createAuthentication = ({ User }: { User: UserModel }) => {
   const strategy = new Strategy(
     {
-      // session: false,
-      passReqToCallback: true,
+      session: false,
       usernameField: "email",
     },
-    (req: SignInRequest, username: string, password: string, done) => {
+    (email: string, password: string, done) => {
       const checkUser = async () => {
         const user = await User.findOne({
-          email: username,
+          email,
         })
 
         if (!user) {
@@ -35,8 +35,10 @@ export const createAuthentication = ({ User }: { User: UserModel }) => {
           return done(null, false, { message: "Invalid password" })
         }
 
-        const { firstName, lastName, email } = user
-        return done(null, { firstName, lastName, email })
+        const token = createToken(user._id.toString())
+
+        const { firstName, lastName } = user
+        return done(null, { firstName, lastName, email, token })
       }
 
       checkUser().catch(done)
@@ -45,5 +47,5 @@ export const createAuthentication = ({ User }: { User: UserModel }) => {
 
   passport.use(STRAGEY_NAME, strategy)
 
-  return passport.authenticate(STRAGEY_NAME) as Handler
+  return passport.authenticate(STRAGEY_NAME, { session: false }) as Handler
 }

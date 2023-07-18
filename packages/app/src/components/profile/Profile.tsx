@@ -1,3 +1,7 @@
+import { Container } from "@mui/material"
+import { http } from "../../providers/http"
+
 export const Profile = () => {
-  return <div>Profile</div>
+  http.get("/profile").then((res) => console.log(res))
+  return <Container>Profile</Container>
 }

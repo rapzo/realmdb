@@ -1,7 +1,7 @@
-version: '3'
+version: "3"
 
 services:
-  mongo:
+  database:
     image: mongo
     restart: always
     environment:
@@ -11,6 +11,34 @@ services:
       - 27017:27017
     volumes:
       - ./data:/data/db
+    networks:
+      - api
+
+  api:
+    container_name: api
+    build: ./packages/api
+    restart: always
+    ports:
+      - 3000:3000
+    networks:
+      - api
+    depends_on:
+      - database
+
+  app:
+    container_name: app
+    build: ./packages/app
+    restart: always
+    ports:
+      - 8080:80
+    networks:
+      - app
+    depends_on:
+      - api
 
 volumes:
   data:
+
+networks:
+  api:
+  app:
