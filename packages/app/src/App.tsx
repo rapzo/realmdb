@@ -4,6 +4,7 @@ import { SignUp } from "./components/authentication/SignUp"
 import { SignIn } from "./components/authentication/SignIn"
 import { Layout } from "./components/layout/Layout"
 import { Profile } from "./components/profile/Profile"
+import { NowPlaying } from "./components/movies/NowPlaying"
 
 export const App = () => {
   return (
@@ -14,10 +15,19 @@ export const App = () => {
             path="/"
             element={
               <RequireSession>
-                <Profile />
+                <NowPlaying />
               </RequireSession>
             }
-          />
+          >
+            <Route
+              path="/profile"
+              element={
+                <RequireSession>
+                  <Profile />
+                </RequireSession>
+              }
+            />
+          </Route>
           <Route
             path="/signin"
             element={<SignIn />}

@@ -15,8 +15,8 @@ import { MovieRounded, Menu as MenuIcon } from "@mui/icons-material"
 import { MouseEvent, useState } from "react"
 import { useSession } from "../../context/Session"
 
-const pages = ["Movies", "Favorites", "Reviews"]
-const settings = ["Profile", "Account", "Dashboard"]
+const pages = ["Now Playing", "Favorites"]
+const settings = ["Profile"]
 
 export const AppBar = ({ title = "RealMDB" }: { title?: string }) => {
   const { user, signOut } = useSession()
@@ -41,7 +41,7 @@ export const AppBar = ({ title = "RealMDB" }: { title?: string }) => {
 
   return (
     <MuiAppBar position="static">
-      <Container maxWidth="xl">
+      <Container maxWidth="lg">
         <Toolbar disableGutters>
           <MovieRounded sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
           <Typography
@@ -134,7 +134,7 @@ export const AppBar = ({ title = "RealMDB" }: { title?: string }) => {
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar
                   alt={`${user?.firstName} ${user?.lastName}`}
-                  src={user?.profileUrl}
+                  src={user?.avatarUrl}
                 />
               </IconButton>
             </Tooltip>

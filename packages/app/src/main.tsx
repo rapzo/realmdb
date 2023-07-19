@@ -11,13 +11,9 @@ import { App } from "./App"
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <>
-      <CssBaseline />
-      <GlobalStyles
-        styles={{
-          body: { backgroundColor: "#606060" },
-        }}
-      />
       <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <GlobalStyles styles={{}} />
         <BrowserRouter>
           <App />
         </BrowserRouter>

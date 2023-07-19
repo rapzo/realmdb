@@ -15,7 +15,7 @@ import {
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined"
 import { styled } from "@mui/system"
 
-import { Link as RoutedLink } from "../navigation/link"
+import { Link as RoutedLink } from "../navigation/Link"
 import { useSession } from "../../context/Session"
 
 interface StyledBoxProps extends BoxProps {

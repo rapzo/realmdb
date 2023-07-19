@@ -19,7 +19,7 @@ corepack prepare yarn@stable --activate
 Boots a local mongodb instance with minimum configuration.
 
 ```shell
-docker-compose up database -d
+docker-compose up -d database
 ```
 
 ### .env
@@ -35,12 +35,11 @@ it work, specially when running in docker containers.
    cp packages/<package-name>/.env.default packages/<package-name>/.{env,env.production}
    ```
 
-````
-
 2. Change the hostnames, such as database and cors to meet the deployed server,
-such as hostnames:
-  - `DATABASE_URL=mongodb://127.0.0.1:27017/database` to `DATABASE_URL=mongodb://database:27017/database`
-  - `CLIENT_URL=http://localhost:5173` to `CLIENT_URL=http://localhost:8080`
+   such as hostnames:
+
+- `DATABASE_URL=mongodb://127.0.0.1:27017/database` to `DATABASE_URL=mongodb://database:27017/database`
+- `CLIENT_URL=http://localhost:5173` to `CLIENT_URL=http://localhost:8080`
 
 ### Dependencies
 
@@ -48,7 +47,7 @@ Install all projects dependencies.
 
 ```shell
 yarn
-````
+```
 
 ## Development
 

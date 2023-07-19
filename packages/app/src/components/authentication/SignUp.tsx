@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material"
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined"
-import { Link as RoutedLink } from "../navigation/link"
+import { Link as RoutedLink } from "../navigation/Link"
 import { session } from "../../services/session-service"
 import { useNavigate } from "react-router-dom"
 

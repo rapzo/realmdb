@@ -8,12 +8,13 @@ import {
 import { Navigate, useLocation } from "react-router-dom"
 
 import { session } from "../services/session-service"
+import { setAuthorizationHeader } from "../providers/http"
 
 export interface User {
   email: string
   firstName?: string
   lastName?: string
-  profileUrl?: string
+  avatarUrl?: string
 }
 
 interface SessionContext {
@@ -21,7 +22,7 @@ interface SessionContext {
     email: string
     firstName?: string
     lastName?: string
-    profileUrl?: string
+    avatarUrl?: string
   } | null
 
   // resendConfirmationCode: (username: string) => Promise<void>
@@ -70,6 +71,7 @@ async function signIn(username: string, password: string) {
     const { token, ...user } = await session.signIn(username, password)
 
     writeToLocalStorage({ user, token })
+    setAuthorizationHeader(token)
 
     return user
   } catch (error) {
@@ -90,9 +92,8 @@ async function signIn(username: string, password: string) {
 
 async function signOut() {
   try {
-    await session.signOut()
-
     clearLocalStorage()
+    await session.signOut()
   } catch (error) {
     console.log("error signing out: ", error)
   }
@@ -115,7 +116,7 @@ export function SessionProvider(props: PropsWithChildren<{}>) {
     email: string
     firstName?: string
     lastName?: string
-    profileUrl?: string
+    avatarUrl?: string
   } | null>(readFromLocalStorage())
 
   const value = {

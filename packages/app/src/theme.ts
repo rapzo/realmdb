@@ -1,18 +1,39 @@
 import { createTheme } from "@mui/material"
-import { teal, blueGrey } from "@mui/material/colors"
 
 export const theme = createTheme({
   palette: {
     mode: "dark",
-    background: {
-      default: "#000000",
-      paper: "#1E1E1E",
-    },
     primary: {
-      main: teal[500],
+      main: "#00eab7",
     },
     secondary: {
-      main: blueGrey[500],
+      main: "#f500f1",
+    },
+    text: {
+      primary: "#a59ece",
+    },
+    error: {
+      main: "#e62365",
+    },
+    info: {
+      main: "#6880bf",
+    },
+    success: {
+      main: "#31b504",
+    },
+    divider: "rgba(230,220,220,0.45)",
+    background: {
+      default: "#0d253f",
+      paper: "#12121f",
+    },
+  },
+  components: {
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#12121f",
+        },
+      },
     },
   },
 })
