@@ -3,11 +3,17 @@ import helmet from "helmet"
 import cors from "cors"
 
 import { createConnection } from "./database"
-import { createGetUsers } from "./routes/get-users"
+import {
+  createAuthentication,
+  createJWT,
+  isAuthenticated,
+  requireAuthentication,
+} from "./middleware/authentication"
+
 import { createSignIn } from "./routes/sign-in"
 import { createSignUp } from "./routes/sign-up"
 import { createGetProfile } from "./routes/profile"
-import { createAuthentication, createJWT } from "./middleware/authentication"
+import { createMoviesRouter } from "./routes/movies"
 
 const { PORT = 3000, DATABASE_URL, CLIENT_URL } = process.env
 
@@ -26,15 +32,16 @@ export const main = async (): Promise<void> => {
   app.use(express.json())
   app.use(helmet())
 
-  const authentication = createAuthentication({ User })
-  const isAuthenticated = createJWT({ User })
+  createAuthentication({ User })
+  createJWT({ User })
 
   app.get("/hb", (_req, res) => res.json({ status: "ok" }))
 
-  app.post("/signin", authentication, createSignIn())
+  app.post("/signin", requireAuthentication(), createSignIn())
   app.post("/signup", createSignUp({ User }))
-  app.get("/profile", isAuthenticated, createGetProfile({ User }))
-  app.get("/users", createGetUsers({ User }))
+  app.get("/profile", isAuthenticated(), createGetProfile({ User }))
+
+  app.use("/movies", isAuthenticated(), createMoviesRouter())
 
   app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
 }

@@ -41,6 +41,7 @@ export const createJWT = ({ User }: { User: UserModel }) => {
         }
 
         const user = await User.findOne().select("email firstName lastName")
+        console.log("user", JSON.stringify(user, null, 2))
 
         if (!user) {
           return done(null, false, { message: "User not found" })
@@ -55,8 +56,6 @@ export const createJWT = ({ User }: { User: UserModel }) => {
   )
 
   passport.use(STRAGEY_NAME, strategy)
-
-  return passport.authenticate(STRAGEY_NAME, { session: false }) as Handler
 }
 
 export const isAuthenticated = () =>

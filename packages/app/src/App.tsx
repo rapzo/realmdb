@@ -5,6 +5,16 @@ import { SignIn } from "./components/authentication/SignIn"
 import { Layout } from "./components/layout/Layout"
 import { Profile } from "./components/profile/Profile"
 import { NowPlaying } from "./components/movies/NowPlaying"
+import { QueryClient, QueryClientProvider } from "react-query"
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  },
+})
 
 export const App = () => {
   return (
@@ -15,7 +25,9 @@ export const App = () => {
             path="/"
             element={
               <RequireSession>
-                <NowPlaying />
+                <QueryClientProvider client={queryClient}>
+                  <NowPlaying />
+                </QueryClientProvider>
               </RequireSession>
             }
           >

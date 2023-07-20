@@ -3,12 +3,10 @@ import { Strategy } from "passport-local"
 import { createPasswordHash, type UserModel } from "../../database"
 import { createToken } from "./jwt"
 import type { Handler, Request } from "express"
+import type { SignInPayload } from "@realmdb/schemas"
 
 export interface SignInRequest extends Request {
-  body: {
-    email: string
-    password: string
-  }
+  body: SignInPayload
 }
 
 const STRAGEY_NAME = "SIGN_IN"
@@ -46,6 +44,7 @@ export const createAuthentication = ({ User }: { User: UserModel }) => {
   )
 
   passport.use(STRAGEY_NAME, strategy)
-
-  return passport.authenticate(STRAGEY_NAME, { session: false }) as Handler
 }
+
+export const requireAuthentication = () =>
+  passport.authenticate(STRAGEY_NAME, { session: false }) as Handler

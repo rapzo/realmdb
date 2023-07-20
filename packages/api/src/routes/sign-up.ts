@@ -1,13 +1,9 @@
+import type { SignUpPayload } from "@realmdb/schemas"
 import type { Handler, Request, Response } from "express"
 import type { UserModel } from "../database"
 
 export interface SignUpRequest extends Request {
-  body: {
-    firstName: string
-    lastName: string
-    email: string
-    password: string
-  }
+  body: SignUpPayload
 }
 
 export const createSignUp =

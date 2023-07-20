@@ -1,9 +1,8 @@
 import type { Request, Response } from "express"
 import type { UserModel } from "../database"
-import { isAuthenticated } from "../middleware/authentication"
 
-export const createGetProfile = ({ User }: { User: UserModel }) => [
-  isAuthenticated(),
+export const createGetProfile =
+  ({ User }: { User: UserModel }) =>
   (req: Request, res: Response) => {
     const getUsers = async () => {
       const users = await User.findOne({}).select("email firstName lastName")
@@ -17,5 +16,4 @@ export const createGetProfile = ({ User }: { User: UserModel }) => [
         error: error.message,
       })
     })
-  },
-]
+  }

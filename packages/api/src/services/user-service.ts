@@ -1,21 +1,10 @@
-import { UserModel } from "../database"
-
-export interface CreateUserPayload {
-  email: string
-  password: string
-  firstName: string
-  lastName: string
-}
+import type { SignUpPayload } from "@realmdb/schemas"
+import type { UserModel } from "../database"
 
 export class UserService {
   constructor(private readonly User: UserModel) {}
 
-  async createUser({
-    email,
-    password,
-    firstName,
-    lastName,
-  }: CreateUserPayload) {
+  async createUser({ email, password, firstName, lastName }: SignUpPayload) {
     const user = await this.User.create({
       email,
       password,

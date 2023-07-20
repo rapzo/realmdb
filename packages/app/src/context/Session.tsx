@@ -33,8 +33,10 @@ interface SessionContext {
 function readFromLocalStorage() {
   try {
     const user = localStorage.getItem("user")
+    const token = localStorage.getItem("token")
 
-    if (user) return JSON.parse(user)
+    if (user && token)
+      return { user: JSON.parse(user), token: JSON.parse(token) }
 
     return null
   } catch (error) {
@@ -112,12 +114,15 @@ export function useSession() {
 }
 
 export function SessionProvider(props: PropsWithChildren<{}>) {
+  const { user: data, token } = readFromLocalStorage() || {}
   const [user, setUser] = useState<{
     email: string
     firstName?: string
     lastName?: string
     avatarUrl?: string
-  } | null>(readFromLocalStorage())
+  } | null>(data)
+
+  if (token) setAuthorizationHeader(token)
 
   const value = {
     user,

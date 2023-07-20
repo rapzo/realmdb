@@ -1,59 +1,61 @@
-import axios, { type AxiosInstance } from "axios"
-
-export type Http = AxiosInstance
-
-export interface TopMoviesResponse {
-  dates: {
-    maximum: string
-    minimum: string
-  }
-  page: number
-  results: Array<TopMovie>
-  total_pages: number
-  total_results: number
-}
-
-export interface TopMovie {
-  adult: boolean
-  backdrop_path: string
-  genre_ids: Array<number>
-  id: number
-  original_language: string
-  original_title: string
-  overview: string
-  popularity: number
-  poster_path: string
-  release_date: string
-  title: string
-  video: boolean
-  vote_average: number
-  vote_count: number
-}
+import { TmdbImagesService } from "./images-service"
+import type { ConfigurationResponse, TopMoviesResponse } from "@realmdb/schemas"
+import { type Http, createHttpProvider } from "./http"
+import { AxiosResponse } from "axios"
+import { Stream } from "stream"
 
 const { TMDB_URL, TMDB_API_KEY, TMDB_READ_ACCESS_TOKEN } = process.env
 
 export class TmdbService {
-  private readonly http: Http = axios.create({
-    baseURL: TMDB_URL,
+  private readonly http: Http
 
-    headers: {
-      Authorization: `Bearer ${TMDB_READ_ACCESS_TOKEN}`,
-    },
+  private imagesService?: TmdbImagesService
 
-    params: {
-      api_key: TMDB_API_KEY,
-    },
-  })
-
-  constructor(private readonly Movie: MovieModel) {}
-
-  async getTopMovies(page = 1): Promise<TopMoviesResponse> {
-    const { data } = await this.http.get<TopMoviesResponse>("/movies/top", {
-      params: {
-        page,
-      },
+  constructor() {
+    this.http = createHttpProvider({
+      baseURL: TMDB_URL!,
+      apiKey: TMDB_API_KEY!,
+      apiReadAccessToken: TMDB_READ_ACCESS_TOKEN!,
     })
 
+    this.getConfiguration()
+      .then(({ images }) => {
+        this.imagesService = new TmdbImagesService(images)
+      })
+      .catch((error) => {
+        console.error("Failed to get TMDB configuration")
+        console.error(error)
+      })
+  }
+
+  async getConfiguration() {
+    const { data } = await this.http.get<ConfigurationResponse>(
+      "/configuration",
+    )
+
     return data
+  }
+
+  async getNowPlayingMovies(page = 1): Promise<TopMoviesResponse> {
+    const { data } = await this.http.get<TopMoviesResponse>(
+      "/movie/now_playing",
+      {
+        params: {
+          page,
+        },
+      },
+    )
+
+    return data
+  }
+
+  async getImage(path: string): Promise<AxiosResponse<Stream>> {
+    if (!this.imagesService) {
+      throw new Error("Image service is not initialized")
+    }
+
+    return this.http.get<Stream>(this.imagesService.getPosterURL(path), {
+      responseType: "stream",
+    })
   }
 }

@@ -4,6 +4,7 @@ import {
 } from "crypto"
 import { Schema } from "mongoose"
 import type { Document, Model, Types } from "mongoose"
+import type { SignUpPayload } from "@realmdb/schemas"
 
 const { AUTH_SALT, AUTH_ITERATIONS, AUTH_HASH_LENGTH, AUTH_DIGEST } =
   process.env
@@ -12,13 +13,8 @@ if (!AUTH_SALT || !AUTH_ITERATIONS || !AUTH_HASH_LENGTH || !AUTH_DIGEST) {
   throw new Error("Bad environment configuration")
 }
 
-export interface UserSchema extends Document<Types.ObjectId> {
+export interface UserSchema extends SignUpPayload, Document<Types.ObjectId> {
   _id: Types.ObjectId
-  firstName: string
-  lastName: string
-  email: string
-  password: string
-  avatar?: string
   recoveryToken?: string
   recoveryTokenExpiresAt?: Date
   active: boolean
@@ -96,6 +92,17 @@ export const createPassword = (password: string): Promise<Buffer> =>
 
 export const createPasswordHash = async (password: string): Promise<string> =>
   (await createPassword(password)).toString("hex")
+
+user.path("email").validate(async function (email: string) {
+  try {
+    const count: number = await this.$model("User")
+      .find({ email })
+      .estimatedDocumentCount()
+    return !count
+  } catch (err) {
+    return false
+  }
+}, "Email already exists")
 
 user.pre<UserSchema>("save", function (next) {
   if (this.isModified("password")) {
