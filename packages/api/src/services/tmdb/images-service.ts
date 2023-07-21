@@ -25,15 +25,38 @@ export class TmdbImagesService {
     }
   }
 
-  getBackdropURL(path: string, size: string = "original"): string {
-    return `${this.config.baseSecureURL}${size}${path}`
+  getImageUrl(type: string, size: string, name: string): string {
+    switch (type) {
+      case "backdrop":
+        return this.getBackdropUrl(name, size)
+      case "logo":
+        return this.getLogoUrl(name, size)
+      case "poster":
+        return this.getPosterUrl(name, size)
+      default:
+        throw new Error(`Invalid image type: ${type}`)
+    }
   }
 
-  getLogoURL(path: string, size: string = "original"): string {
-    return `${this.config.baseSecureURL}${size}${path}`
+  getBackdropUrl(path: string, size: string = "original"): string {
+    if (!this.config.backdropSizes.includes(size)) {
+      throw new Error(`Invalid backdrop size: ${size}`)
+    }
+
+    return `${this.config.baseSecureURL}${size}/${path}`
   }
 
-  getPosterURL(path: string, size: string = "original"): string {
-    return `${this.config.baseSecureURL}${size}${path}`
+  getLogoUrl(path: string, size: string = "original"): string {
+    if (!this.config.logoSizes.includes(size)) {
+      throw new Error(`Invalid logo size: ${size}`)
+    }
+    return `${this.config.baseSecureURL}${size}/${path}`
+  }
+
+  getPosterUrl(path: string, size: string = "original"): string {
+    if (!this.config.posterSizes.includes(size)) {
+      throw new Error(`Invalid poster size: ${size}`)
+    }
+    return `${this.config.baseSecureURL}${size}/${path}`
   }
 }

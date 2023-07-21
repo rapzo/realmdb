@@ -1,15 +1,16 @@
-import { TmdbImagesService } from "./images-service"
-import type { ConfigurationResponse, TopMoviesResponse } from "@realmdb/schemas"
 import { type Http, createHttpProvider } from "./http"
-import { AxiosResponse } from "axios"
-import { Stream } from "stream"
+import type { Stream } from "stream"
+import type {
+  ConfigurationResponse,
+  TopMovie,
+  TopMoviesResponse,
+} from "@realmdb/schemas"
+import type { AxiosResponse } from "axios"
 
 const { TMDB_URL, TMDB_API_KEY, TMDB_READ_ACCESS_TOKEN } = process.env
 
 export class TmdbService {
   private readonly http: Http
-
-  private imagesService?: TmdbImagesService
 
   constructor() {
     this.http = createHttpProvider({
@@ -17,15 +18,6 @@ export class TmdbService {
       apiKey: TMDB_API_KEY!,
       apiReadAccessToken: TMDB_READ_ACCESS_TOKEN!,
     })
-
-    this.getConfiguration()
-      .then(({ images }) => {
-        this.imagesService = new TmdbImagesService(images)
-      })
-      .catch((error) => {
-        console.error("Failed to get TMDB configuration")
-        console.error(error)
-      })
   }
 
   async getConfiguration() {
@@ -36,7 +28,7 @@ export class TmdbService {
     return data
   }
 
-  async getNowPlayingMovies(page = 1): Promise<TopMoviesResponse> {
+  async getNowPlayingMovies(page = 1): Promise<TopMovie[]> {
     const { data } = await this.http.get<TopMoviesResponse>(
       "/movie/now_playing",
       {
@@ -46,16 +38,27 @@ export class TmdbService {
       },
     )
 
-    return data
+    const { results } = data
+    const movies = results.map((movie) => ({
+      id: movie.id,
+      title: movie.title,
+      overview: movie.overview,
+      poster: movie.poster_path ? stripSlash(movie.poster_path) : "",
+      backdrop: movie.backdrop_path ? stripSlash(movie.backdrop_path) : "",
+      popularity: movie.popularity,
+      voteAverage: movie.vote_average,
+      voteCount: movie.vote_count,
+      releaseDate: movie.release_date,
+    }))
+
+    return movies
   }
 
   async getImage(path: string): Promise<AxiosResponse<Stream>> {
-    if (!this.imagesService) {
-      throw new Error("Image service is not initialized")
-    }
-
-    return this.http.get<Stream>(this.imagesService.getPosterURL(path), {
+    return this.http.get<Stream>(path, {
       responseType: "stream",
     })
   }
 }
+
+const stripSlash = (path: string) => path.replace(/^\//, "")

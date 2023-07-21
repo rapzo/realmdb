@@ -1,15 +1,15 @@
 import { Router } from "express"
 import { nowPlaying } from "./top"
-import { createTmdbService } from "../../services"
-import { image } from "./images"
+import type { TmdbService } from "../../services/tmdb"
 
-export const createMoviesRouter = (): Router => {
+export const createMoviesRouter = ({
+  tmdbService,
+}: {
+  tmdbService: TmdbService
+}): Router => {
   const router = Router()
 
-  const tmdbService = createTmdbService()
-
   router.get("/playing", nowPlaying({ tmdbService }))
-  router.get("/images/:path", image({ tmdbService }))
 
   return router
 }

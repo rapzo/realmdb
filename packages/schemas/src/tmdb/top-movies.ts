@@ -4,12 +4,12 @@ export interface TopMoviesResponse {
     minimum: string
   }
   page: number
-  results: Array<TopMovie>
+  results: Array<TopMovieResponse>
   total_pages: number
   total_results: number
 }
 
-export interface TopMovie {
+export interface TopMovieResponse {
   adult: boolean
   backdrop_path: string
   genre_ids: Array<number>
@@ -24,4 +24,16 @@ export interface TopMovie {
   video: boolean
   vote_average: number
   vote_count: number
+}
+
+export interface TopMovie {
+  id: number
+  title: string
+  overview: string
+  poster: string
+  backdrop: string
+  popularity: number
+  voteAverage: number
+  voteCount: number
+  releaseDate: string
 }
