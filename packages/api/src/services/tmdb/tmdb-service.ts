@@ -40,17 +40,21 @@ export class TmdbService {
     )
 
     const { results } = data
-    const movies = results.map((movie) => ({
-      id: movie.id,
-      title: movie.title,
-      overview: movie.overview,
-      poster: movie.poster_path ? stripSlash(movie.poster_path) : "",
-      backdrop: movie.backdrop_path ? stripSlash(movie.backdrop_path) : "",
-      popularity: movie.popularity,
-      voteAverage: movie.vote_average,
-      voteCount: movie.vote_count,
-      releaseDate: movie.release_date,
-    }))
+    const movies = results
+      .map((movie) => ({
+        id: movie.id,
+        title: movie.title,
+        overview: movie.overview,
+        poster: movie.poster_path ? stripSlash(movie.poster_path) : "",
+        backdrop: movie.backdrop_path ? stripSlash(movie.backdrop_path) : "",
+        popularity: movie.popularity,
+        voteAverage: movie.vote_average,
+        voteCount: movie.vote_count,
+        releaseDate: movie.release_date,
+      }))
+      .sort((a, b) =>
+        new Date(b.releaseDate) > new Date(a.releaseDate) ? 1 : -1,
+      )
 
     return movies
   }
