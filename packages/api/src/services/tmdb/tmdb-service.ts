@@ -2,8 +2,9 @@ import { type Http, createHttpProvider } from "./http"
 import type { Stream } from "stream"
 import type {
   ConfigurationResponse,
-  TopMovie,
-  TopMoviesResponse,
+  NowPlayingMovie,
+  NowPlayingMovieResponse,
+  NowPlayingMoviesResponse,
 } from "@realmdb/schemas"
 import type { AxiosResponse } from "axios"
 
@@ -28,8 +29,8 @@ export class TmdbService {
     return data
   }
 
-  async getNowPlayingMovies(page = 1): Promise<TopMovie[]> {
-    const { data } = await this.http.get<TopMoviesResponse>(
+  async getNowPlayingMovies(page = 1): Promise<NowPlayingMovie[]> {
+    const { data } = await this.http.get<NowPlayingMoviesResponse>(
       "/movie/now_playing",
       {
         params: {

@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance } from "axios"
+import axios, { AxiosResponse, type AxiosInstance } from "axios"
 
 export type Http = AxiosInstance
 
@@ -8,7 +8,7 @@ export const http = axios.create({
 })
 
 http.interceptors.response.use(
-  (response) => response.data,
+  <T>(response: AxiosResponse<T>): T => response.data,
   (error) => {
     if (error.response) {
       return Promise.reject(error.response.data)

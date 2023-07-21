@@ -33,7 +33,13 @@ export const main = async (): Promise<void> => {
     }),
   )
   app.use(express.json())
-  app.use(helmet())
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: {
+        policy: "cross-origin",
+      },
+    }),
+  )
 
   createAuthentication({ User })
   createJWT({ User })
@@ -46,7 +52,7 @@ export const main = async (): Promise<void> => {
 
   // Pictures!
   app.get(
-    "/images/:size/:path",
+    "/images/:type/:size/:name",
     createImagesRoute({ tmdbService, tmdbImagesService }),
   )
 

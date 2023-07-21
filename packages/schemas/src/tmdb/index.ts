@@ -1,2 +1,2 @@
 export * from "./configuration"
-export * from "./top-movies"
+export * from "./now-playing"

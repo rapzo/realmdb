@@ -1,4 +1,4 @@
-import { Favorite, MoreVert, Share } from "@mui/icons-material"
+import { Favorite, MoreVert, Movie, Share } from "@mui/icons-material"
 import {
   Avatar,
   CardActions,
@@ -12,7 +12,9 @@ import {
   Typography,
 } from "@mui/material"
 import { styled } from "@mui/system"
+import { NowPlayingMovie } from "@realmdb/schemas"
 import { useState } from "react"
+import { getPosterPath } from "../../providers/image"
 
 const Card = styled(MuiCard)(({ theme }) => ({
   ...theme.typography.body2,
@@ -34,35 +36,36 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
   }),
 }))
 
-export const MovieCard = () => {
+export const MovieCard = ({ movie }: { movie: NowPlayingMovie }) => {
   const [expanded, setExpanded] = useState(false)
 
   const handleExpandClick = () => {
     setExpanded(!expanded)
   }
+
   return (
     <Card>
       <CardHeader
-        avatar={<Avatar aria-label="recipe">R</Avatar>}
         action={
           <IconButton aria-label="settings">
             <MoreVert />
           </IconButton>
         }
-        title="Shrimp and Chorizo Paella"
-        subheader="September 14, 2016"
+        title={movie.title}
+        subheader={movie.releaseDate}
       />
-      <CardMedia
-        component="img"
-        height="194"
-        image="/static/images/cards/paella.jpg"
-        alt="Paella dish"
-      />
+      {movie.poster ? (
+        <CardMedia
+          component="img"
+          image={getPosterPath(movie.poster, "w500")}
+          alt={movie.title}
+        />
+      ) : (
+        <Movie sx={{ width: 500, height: 500 }} />
+      )}
       <CardContent>
         <Typography variant="body2" color="text.secondary">
-          This impressive paella is a perfect party dish and a fun meal to cook
-          together with your guests. Add 1 cup of frozen peas along with the
-          mussels, if you like.
+          {movie.overview}
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
