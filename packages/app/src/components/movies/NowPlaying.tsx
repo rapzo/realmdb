@@ -10,7 +10,7 @@ export const NowPlaying = () => {
 
   return (
     <Container sx={{ mt: 10 }}>
-      <Typography variant="h4" color="primary">
+      <Typography sx={{ mb: 4 }} component="div" variant="h4" color="primary">
         Now Playing
       </Typography>
 

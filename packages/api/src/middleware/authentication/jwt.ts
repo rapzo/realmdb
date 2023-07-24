@@ -3,6 +3,7 @@ import { ExtractJwt, Strategy } from "passport-jwt"
 import jwt, { Algorithm, JwtPayload } from "jsonwebtoken"
 import type { Handler } from "express"
 import type { UserModel } from "../../database"
+import type { User as SessionUser } from "@realmdb/schemas"
 
 const { JWT_SECRET, JWT_ISSUER, JWT_AUDIENCE, JWT_ALGORITHM, JWT_MAX_AGE } =
   process.env
@@ -40,8 +41,7 @@ export const createJWT = ({ User }: { User: UserModel }) => {
           return done(null, false, { message: "User not found" })
         }
 
-        const user = await User.findOne().select("email firstName lastName")
-        console.log("user", JSON.stringify(user, null, 2))
+        const user = await User.findById(sub).select("email firstName lastName")
 
         if (!user) {
           return done(null, false, { message: "User not found" })
