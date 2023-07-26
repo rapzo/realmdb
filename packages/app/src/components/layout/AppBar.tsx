@@ -10,13 +10,14 @@ import {
   Toolbar,
   Tooltip,
   Typography,
+  Link,
 } from "@mui/material"
 import { MovieRounded, Menu as MenuIcon } from "@mui/icons-material"
 import { MouseEvent, useState } from "react"
+import { Link as RoutedLink } from "../navigation/Link"
 import { useSession } from "../../context/Session"
 
 const pages = ["Now Playing", "Favorites"]
-const settings = ["Profile"]
 
 export const AppBar = ({ title = "RealMDB" }: { title?: string }) => {
   const { user, signOut } = useSession()
@@ -37,6 +38,11 @@ export const AppBar = ({ title = "RealMDB" }: { title?: string }) => {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null)
+  }
+
+  const handleSignOut = () => {
+    handleCloseNavMenu()
+    signOut()
   }
 
   return (
@@ -118,15 +124,22 @@ export const AppBar = ({ title = "RealMDB" }: { title?: string }) => {
             {title}
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
-              >
-                {page}
-              </Button>
-            ))}
+            <Button
+              onClick={handleCloseNavMenu}
+              sx={{ my: 2, color: "white", display: "block" }}
+              component={RoutedLink}
+              to="/"
+            >
+              Now playing
+            </Button>
+            <Button
+              onClick={handleCloseNavMenu}
+              sx={{ my: 2, color: "white", display: "block" }}
+              component={RoutedLink}
+              to="/favorites"
+            >
+              Favorites
+            </Button>
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
@@ -154,16 +167,17 @@ export const AppBar = ({ title = "RealMDB" }: { title?: string }) => {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
-              {user ? (
-                <MenuItem onClick={signOut}>
-                  <Typography textAlign="center">Sign Out</Typography>
-                </MenuItem>
-              ) : null}
+              <MenuItem
+                onClick={handleCloseUserMenu}
+                component={RoutedLink}
+                to="/profile"
+              >
+                <Typography textAlign="center">Profile</Typography>
+              </MenuItem>
+
+              <MenuItem onClick={handleSignOut}>
+                <Typography textAlign="center">Sign Out</Typography>
+              </MenuItem>
             </Menu>
           </Box>
         </Toolbar>

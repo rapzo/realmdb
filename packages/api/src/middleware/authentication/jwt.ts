@@ -1,9 +1,13 @@
-import passport from "passport"
+import passport, { type AuthenticateOptions } from "passport"
 import { ExtractJwt, Strategy } from "passport-jwt"
-import jwt, { Algorithm, JwtPayload } from "jsonwebtoken"
+import jwt, {
+  type Algorithm,
+  type JwtPayload,
+  TokenExpiredError,
+} from "jsonwebtoken"
 import type { Handler } from "express"
 import type { UserModel } from "../../database"
-import type { User as SessionUser } from "@realmdb/schemas"
+import type { User } from "@realmdb/schemas"
 
 const { JWT_SECRET, JWT_ISSUER, JWT_AUDIENCE, JWT_ALGORITHM, JWT_MAX_AGE } =
   process.env
@@ -58,10 +62,53 @@ export const createJWT = ({ User }: { User: UserModel }) => {
   passport.use(STRAGEY_NAME, strategy)
 }
 
-export const isAuthenticated = () =>
-  passport.authenticate(STRAGEY_NAME, {
-    session: false,
-  }) as Handler
+type isAuthenticatedMiddleware = (options?: AuthenticateOptions) => Handler
+export const isAuthenticated: isAuthenticatedMiddleware = (
+  options = { session: false },
+) => {
+  return (req, res, next) => {
+    const verifyHandler = (
+      error: Error,
+      user?: User | null,
+      info?: Error | null,
+      _status?: number | null,
+    ) => {
+      if (error) return next(error)
+
+      if (!user) {
+        if (info instanceof Error) {
+          if (info instanceof TokenExpiredError) {
+            return res.status(401).json({
+              message: "Unauthorized",
+              error: "Token expired",
+            })
+          }
+
+          return res.status(401).json({
+            message: "Unauthorized",
+            error: info.message,
+          })
+        }
+
+        return res.status(401).json({
+          message: "Unauthorized",
+        })
+      }
+
+      req.user = user
+
+      return next()
+    }
+
+    const handler = passport.authenticate(
+      STRAGEY_NAME,
+      options,
+      verifyHandler,
+    ) as Handler
+
+    return handler(req, res, next)
+  }
+}
 
 export const createToken = (subject: string, payload = {}) => {
   const token = jwt.sign(payload, JWT_SECRET, {

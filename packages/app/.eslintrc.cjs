@@ -23,7 +23,9 @@ module.exports = {
       "warn",
       { allowConstantExport: true },
     ],
-    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-non-null-assertion": "on",
+    "max-len": ["error", { code: 90, ignoreComments: true }],
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
   },
-  "max-len": ["error", { code: 90, ignoreComments: true }],
 }

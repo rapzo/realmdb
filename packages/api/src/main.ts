@@ -46,9 +46,11 @@ export const main = async (): Promise<void> => {
 
   app.get("/hb", (_req, res) => res.json({ status: "ok" }))
 
-  app.post("/signin", requireAuthentication(), createSignIn())
   app.post("/signup", createSignUp({ User }))
+  app.post("/signin", requireAuthentication(), createSignIn())
+  app.post("/signout", isAuthenticated())
   app.get("/profile", isAuthenticated(), createGetProfile({ User }))
+  app.post("/profile", isAuthenticated())
 
   // Pictures!
   app.get(
