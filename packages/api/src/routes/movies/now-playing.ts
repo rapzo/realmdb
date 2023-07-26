@@ -1,5 +1,5 @@
 import type { Handler, Request, Response } from "express"
-import type { TmdbService } from "../../services/tmdb/tmdb-service"
+import type { TmdbService } from "../../services"
 
 export const nowPlaying =
   ({ tmdbService }: { tmdbService: TmdbService }): Handler =>

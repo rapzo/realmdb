@@ -2370,6 +2370,7 @@ __metadata:
     react: ^18.2.0
     react-dom: ^18.2.0
     react-hook-form: ^7.45.1
+    react-intersection-observer: ^9.5.2
     react-query: ^3.39.3
     react-router-dom: ^6.14.1
     styled-components: ^6.0.4
@@ -6528,6 +6529,15 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17 || ^18
   checksum: af00c67fad33049e3ccecbbe80335f20f66f41ba3e48bc511cc7985b4c39d229c1b67520d90a824ba3415e76473d73020e429c629b658ca78b77f5c64ce21be6
+  languageName: node
+  linkType: hard
+
+"react-intersection-observer@npm:^9.5.2":
+  version: 9.5.2
+  resolution: "react-intersection-observer@npm:9.5.2"
+  peerDependencies:
+    react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: 700347ff7b76ec48fbb350f23ce9dbbfbda76523de2e1dcee98e80df9a72f0cd3b48e7d7d074bf5a4c1cf31909356c88571507e1f05f2a2da5e6864cfce3029c
   languageName: node
   linkType: hard
 

@@ -50,6 +50,7 @@ export const main = async (): Promise<void> => {
   app.post("/signin", requireAuthentication(), createSignIn())
   app.post("/signout", isAuthenticated())
   app.get("/profile", isAuthenticated(), createGetProfile({ User }))
+  // TODO implement profile update
   app.post("/profile", isAuthenticated())
 
   // Pictures!
@@ -58,7 +59,11 @@ export const main = async (): Promise<void> => {
     createImagesRoute({ tmdbService, tmdbImagesService }),
   )
 
-  app.use("/movies", isAuthenticated(), createMoviesRouter({ tmdbService }))
+  app.use(
+    "/movies",
+    isAuthenticated(),
+    createMoviesRouter({ tmdbService, userService }),
+  )
 
   app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
 }
