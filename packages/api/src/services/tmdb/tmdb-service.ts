@@ -2,8 +2,9 @@ import { type Http, createHttpProvider } from "./http"
 import type { Stream } from "stream"
 import type {
   ConfigurationResponse,
+  Movie,
+  MovieDetailsResponse,
   NowPlayingMovie,
-  NowPlayingMovieResponse,
   NowPlayingMoviesResponse,
 } from "@realmdb/schemas"
 import type { AxiosResponse } from "axios"
@@ -63,6 +64,35 @@ export class TmdbService {
     return this.http.get<Stream>(path, {
       responseType: "stream",
     })
+  }
+
+  async getMovie(id: number): Promise<Movie> {
+    const { data } = await this.http.get<MovieDetailsResponse>(`/movie/${id}`)
+
+    return {
+      id: data.id,
+      title: data.title,
+      overview: data.overview,
+      poster: data.poster_path ? stripSlash(data.poster_path) : "",
+      backdrop: data.backdrop_path ? stripSlash(data.backdrop_path) : "",
+      popularity: data.popularity,
+      voteAverage: data.vote_average,
+      voteCount: data.vote_count,
+      releaseDate: data.release_date,
+      budget: data.budget,
+      genres: data.genres,
+      imdbId: data.imdb_id,
+      originalLanguage: data.original_language,
+      originalTitle: data.original_title,
+      productionCompanies: data.production_companies,
+      productionCountries: data.production_countries,
+      revenue: data.revenue,
+      runtime: data.runtime,
+      spokenLanguages: data.spoken_languages,
+      status: data.status,
+      tagline: data.tagline,
+      video: data.video,
+    }
   }
 }
 

@@ -3,8 +3,9 @@ import {
   // timingSafeEqual
 } from "crypto"
 import { Schema } from "mongoose"
-import type { Document, Model, Types } from "mongoose"
-import type { SignUpPayload } from "@realmdb/schemas"
+import type { Model, Types, Document } from "mongoose"
+import type { UserProfile } from "@realmdb/schemas"
+import { FavoriteSchema, favoriteSchema } from "./favorite"
 
 const { AUTH_SALT, AUTH_ITERATIONS, AUTH_HASH_LENGTH, AUTH_DIGEST } =
   process.env
@@ -13,22 +14,34 @@ if (!AUTH_SALT || !AUTH_ITERATIONS || !AUTH_HASH_LENGTH || !AUTH_DIGEST) {
   throw new Error("Bad environment configuration")
 }
 
-export interface UserSchema extends SignUpPayload, Document<Types.ObjectId> {
+export interface UserDocument extends UserProfile {
   _id: Types.ObjectId
+  password: string
+  favorites: FavoriteSchema[]
   recoveryToken?: string
   recoveryTokenExpiresAt?: Date
   active: boolean
   createdAt: Date
   updatedAt: Date
   deletedAt?: Date
+}
+
+type UserModelProps = {
+  favorites: Types.DocumentArray<FavoriteSchema>
 
   comparePassword: (password: string) => Promise<boolean>
   generateToken: () => Promise<string>
+
+  isFavorite: (movieId: number) => boolean
+  addFavorite: (movieId: number) => Promise<UserSchema>
+  removeFavorite: (movieId: number) => Promise<UserSchema>
 }
 
-export type UserModel = Model<UserSchema>
+export type UserModel = Model<UserDocument, unknown, UserModelProps>
 
-export const user = new Schema<UserSchema>(
+export type UserSchema = UserDocument & UserModelProps & Document
+
+export const userSchema = new Schema<UserDocument, UserModel, UserModelProps>(
   {
     firstName: {
       type: String,
@@ -60,6 +73,7 @@ export const user = new Schema<UserSchema>(
       maxlength: 64,
     },
     avatar: String,
+    favorites: [favoriteSchema],
     recoveryToken: String,
     recoveryTokenExpiresAt: Date,
     active: {
@@ -93,7 +107,7 @@ export const createPassword = (password: string): Promise<Buffer> =>
 export const createPasswordHash = async (password: string): Promise<string> =>
   (await createPassword(password)).toString("hex")
 
-user.path("email").validate(async function (email: string) {
+userSchema.path("email").validate(async function (email: string) {
   try {
     const count: number = await this.$model("User")
       .find({ email })
@@ -104,7 +118,7 @@ user.path("email").validate(async function (email: string) {
   }
 }, "Email already exists")
 
-user.pre<UserSchema>("save", function (next) {
+userSchema.pre("save", function (next) {
   if (this.isModified("password")) {
     return createPasswordHash(this.password)
       .then((password: string) => {
@@ -122,17 +136,38 @@ user.pre<UserSchema>("save", function (next) {
 //   return createPasswordHash(password).then((digest) => timingSafeEqual(this.password, digest))
 // }
 
-user.methods.generateToken = function (): Promise<string> {
+userSchema.method("generateToken", function (): Promise<string> {
   return Promise.resolve("token")
-}
+})
 
-user.methods.comparePassword = async function (
-  password: string,
-): Promise<boolean> {
-  try {
-    const hashedPassword = await createPasswordHash(password)
-    return this.password === hashedPassword
-  } catch (err) {
-    return false
-  }
-}
+userSchema.method<UserSchema>(
+  "comparePassword",
+  async function (password: string): Promise<boolean> {
+    try {
+      const hashedPassword = await createPasswordHash(password)
+      return this.password === hashedPassword
+    } catch (err) {
+      return false
+    }
+  },
+)
+
+userSchema.method<UserSchema>("addFavorite", function (movieId: number) {
+  this.favorites.create({ movieId })
+
+  return this.save()
+})
+
+userSchema.method<UserSchema>("removeFavorite", function (movieId: number) {
+  this.favorites.pull({ movieId })
+
+  return this.save()
+})
+
+userSchema.method<UserSchema>("isFavorite", function (movieId: number) {
+  const [fav] = this.favorites.filter((fav) => fav.movieId === movieId) as [
+    FavoriteSchema,
+  ]
+
+  return !!fav
+})

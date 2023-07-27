@@ -16,6 +16,7 @@ import { createGetProfile } from "./routes/profile"
 import { createMoviesRouter } from "./routes/movies"
 import { createTmdbServices } from "./services/tmdb"
 import { createImagesRoute } from "./routes/images"
+import { UserService } from "./services"
 
 const { PORT = 3000, DATABASE_URL, CLIENT_URL } = process.env
 
@@ -23,8 +24,10 @@ if (!DATABASE_URL) throw new Error("DATABASE_URL is not defined")
 
 export const main = async (): Promise<void> => {
   const { User } = await createConnection(DATABASE_URL)
-  const app = express()
+  const userService = new UserService(User)
   const { tmdbService, tmdbImagesService } = await createTmdbServices()
+
+  const app = express()
 
   app.use(
     cors({

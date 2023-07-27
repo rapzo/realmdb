@@ -51,8 +51,8 @@ export const createJWT = ({ User }: { User: UserModel }) => {
           return done(null, false, { message: "User not found" })
         }
 
-        const { email, firstName, lastName } = user
-        return done(null, { firstName, lastName, email })
+        const { _id, email, firstName, lastName } = user
+        return done(null, { id: _id, firstName, lastName, email })
       }
 
       checkUser().catch(done)
