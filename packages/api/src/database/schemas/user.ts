@@ -111,10 +111,9 @@ userSchema.path("email").validate(async function (email: string) {
   if (!this.isModified("email")) return true
 
   try {
-    const count: number = await this.$model("User")
-      .find({ email })
-      .estimatedDocumentCount()
-    return !count
+    const users = await this.$model("User").find({ email })
+
+    return users.length === 0
   } catch (err) {
     return false
   }
