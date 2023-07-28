@@ -1,6 +1,6 @@
 import {
-  Favorite as FavoriteIcon,
-  FavoriteBorder as FavoriteBorderIcon,
+  Favorite as MuiFavoriteIcon,
+  FavoriteBorder as MuiFavoriteBorderIcon,
   Movie,
 } from "@mui/icons-material"
 import {
@@ -13,7 +13,9 @@ import {
 } from "@mui/material"
 import { styled } from "@mui/system"
 import { NowPlayingMovie } from "@realmdb/schemas"
-import { getPosterPath } from "../../providers/image"
+import { ReactEventHandler, useState } from "react"
+import { getPosterPath } from "../../helpers/image"
+import { http } from "../../providers/Http"
 
 const Card = styled(MuiCard)(({ theme }) => ({
   ...theme.typography.body2,
@@ -40,33 +42,63 @@ const CardMoviePoster = ({
   )
 }
 
-const Favorite = styled(FavoriteIcon)(({ theme }) => ({
+const FavoriteIcon = styled(MuiFavoriteIcon)(({ theme }) => ({
   color: theme.palette.secondary.main,
 }))
 
-const NotFavorite = styled(FavoriteBorderIcon)(({ theme }) => ({
+const NotFavoriteIcon = styled(MuiFavoriteBorderIcon)(({ theme }) => ({
   color: theme.palette.primary.main,
 }))
+
+const Favorite = ({
+  isFavorite,
+  onClick,
+}: {
+  isFavorite: boolean
+  onClick: ReactEventHandler
+}) => {
+  const iconProps = { fontSize: "large" }
+
+  return (
+    <IconButton aria-label="Favorite!" onClick={onClick}>
+      {isFavorite ? (
+        <FavoriteIcon {...iconProps} />
+      ) : (
+        <NotFavoriteIcon {...iconProps} />
+      )}
+    </IconButton>
+  )
+}
 
 export const MovieCard = ({
   movie,
   isFavorite,
 }: {
   movie: NowPlayingMovie
-  isFavorite?: boolean
+  isFavorite: boolean
 }) => {
-  const favoriteProps = { fontSize: "large" }
+  const [favorite, setFavorite] = useState(isFavorite)
+
+  const handleFavoriteClick: ReactEventHandler = (e) => {
+    e.preventDefault()
+
+    http
+      .post(`/movies/favorite`, {
+        movieId: movie.id,
+      })
+      .then(() => {
+        if (favorite) {
+          setFavorite(false)
+        } else {
+          setFavorite(true)
+        }
+      })
+  }
 
   return (
     <Card>
       <CardActions sx={{ position: "absolute" }}>
-        <IconButton aria-label="add to favorites">
-          {isFavorite ? (
-            <Favorite {...favoriteProps} />
-          ) : (
-            <NotFavorite {...favoriteProps} />
-          )}
-        </IconButton>
+        <Favorite isFavorite={favorite} onClick={handleFavoriteClick} />
       </CardActions>
       <CardMoviePoster title={movie.title} poster={movie.poster} />
       <CardContent>

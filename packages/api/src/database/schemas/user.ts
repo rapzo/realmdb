@@ -4,7 +4,7 @@ import {
 } from "crypto"
 import { Schema } from "mongoose"
 import type { Model, Types, Document } from "mongoose"
-import type { UserProfile } from "@realmdb/schemas"
+import type { Favorite, UserProfile } from "@realmdb/schemas"
 import { FavoriteSchema, favoriteSchema } from "./favorite"
 
 const { AUTH_SALT, AUTH_ITERATIONS, AUTH_HASH_LENGTH, AUTH_DIGEST } =
@@ -17,7 +17,7 @@ if (!AUTH_SALT || !AUTH_ITERATIONS || !AUTH_HASH_LENGTH || !AUTH_DIGEST) {
 export interface UserDocument extends UserProfile {
   _id: Types.ObjectId
   password: string
-  favorites: FavoriteSchema[]
+  favorites: Favorite[]
   recoveryToken?: string
   recoveryTokenExpiresAt?: Date
   active: boolean
@@ -70,7 +70,7 @@ export const userSchema = new Schema<UserDocument, UserModel, UserModelProps>(
       type: String,
       required: true,
       minlength: 8,
-      maxlength: 64,
+      maxlength: 255,
     },
     avatar: String,
     favorites: [favoriteSchema],
@@ -108,6 +108,8 @@ export const createPasswordHash = async (password: string): Promise<string> =>
   (await createPassword(password)).toString("hex")
 
 userSchema.path("email").validate(async function (email: string) {
+  if (!this.isModified("email")) return true
+
   try {
     const count: number = await this.$model("User")
       .find({ email })
@@ -153,7 +155,7 @@ userSchema.method<UserSchema>(
 )
 
 userSchema.method<UserSchema>("addFavorite", function (movieId: number) {
-  this.favorites.create({ movieId })
+  this.favorites.push({ movieId })
 
   return this.save()
 })

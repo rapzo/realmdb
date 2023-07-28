@@ -1,14 +1,12 @@
-import { type Http, http, setAuthorizationHeader } from "../providers/http"
+import { type User } from "@realmdb/schemas"
+import { type Http, http, setAuthorizationHeader } from "../providers/Http"
 
 export interface SignInRequest {
   email: string
   password: string
 }
 
-export interface SignInResponse {
-  email: string
-  firstName: string
-  lastName: string
+export interface SignInResponse extends User {
   token: string
 }
 
@@ -19,12 +17,7 @@ export interface SignUpRequest {
   lastName: string
 }
 
-export interface SignUpResponse {
-  email: string
-  password: string
-  firstName: string
-  lastName: string
-}
+export type SignUpResponse = User
 
 export class SessionService {
   constructor(private readonly http: Http) {}

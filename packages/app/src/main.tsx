@@ -7,17 +7,18 @@ import { CssBaseline, GlobalStyles, ThemeProvider } from "@mui/material"
 
 import { theme } from "./theme"
 import { App } from "./App"
+import { HttpProvider } from "./providers/Http"
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <GlobalStyles styles={{}} />
-        <BrowserRouter>
+    <BrowserRouter>
+      <HttpProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <GlobalStyles styles={{}} />
           <App />
-        </BrowserRouter>
-      </ThemeProvider>
-    </>
+        </ThemeProvider>
+      </HttpProvider>
+    </BrowserRouter>
   </React.StrictMode>,
 )

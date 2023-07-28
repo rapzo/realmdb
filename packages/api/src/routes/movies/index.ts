@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { nowPlaying } from "./now-playing"
-import { upsertFavorite } from "./upsert-favorite"
+import { getFavorites, upsertFavorite } from "./favorites"
 import type { TmdbService, UserService } from "../../services"
 
 export const createMoviesRouter = ({
@@ -13,9 +13,8 @@ export const createMoviesRouter = ({
   const router = Router()
 
   router.get("/playing", nowPlaying({ tmdbService }))
-  router.post("/:id/favotire", () =>
-    upsertFavorite({ tmdbService, userService }),
-  )
+  router.get("/favorites", getFavorites({ userService }))
+  router.post("/favorite", upsertFavorite({ tmdbService, userService }))
 
   return router
 }

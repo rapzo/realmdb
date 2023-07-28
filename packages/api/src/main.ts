@@ -52,7 +52,7 @@ export const main = async (): Promise<void> => {
   app.post("/signup", createSignUp({ User }))
   app.post("/signin", requireAuthentication(), createSignIn())
   app.post("/signout", isAuthenticated())
-  app.get("/profile", isAuthenticated(), createGetProfile({ User }))
+  app.get("/profile", isAuthenticated(), createGetProfile({ userService }))
   // TODO implement profile update
   app.post("/profile", isAuthenticated())
 

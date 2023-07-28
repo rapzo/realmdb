@@ -1,4 +1,4 @@
-import { FavoriteDocument } from "./movies"
+import { type Favorite } from "./movies"
 
 export interface SignUpPayload {
   firstName: string
@@ -9,11 +9,12 @@ export interface SignUpPayload {
 }
 
 export interface UserProfile {
+  id: string
   firstName: string
   lastName: string
   email: string
   avatar?: string
-  favorites?: FavoriteDocument[]
+  favorites?: Favorite[]
 }
 
 export interface SignInPayload {
@@ -27,4 +28,5 @@ export interface User {
   lastName: string
   email: string
   avatar?: string
+  favorites?: Favorite[]
 }

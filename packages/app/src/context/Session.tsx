@@ -6,24 +6,20 @@ import {
   useState,
 } from "react"
 import { Navigate, useLocation } from "react-router-dom"
+import { User } from "@realmdb/schemas"
 
 import { session } from "../services/session-service"
-import { setAuthorizationHeader } from "../providers/http"
+import { setAuthorizationHeader } from "../providers/Http"
 
-export interface User {
-  email: string
-  firstName?: string
-  lastName?: string
-  avatarUrl?: string
-}
+// export interface User {
+//   email: string
+//   firstName?: string
+//   lastName?: string
+//   avatarUrl?: string
+// }
 
 interface SessionContext {
-  user: {
-    email: string
-    firstName?: string
-    lastName?: string
-    avatarUrl?: string
-  } | null
+  user: User | null
 
   // resendConfirmationCode: (username: string) => Promise<void>
   signIn: (username: string, password: string) => Promise<User>
@@ -115,12 +111,7 @@ export function useSession() {
 
 export function SessionProvider(props: PropsWithChildren<{}>) {
   const { user: data, token } = readFromLocalStorage() || {}
-  const [user, setUser] = useState<{
-    email: string
-    firstName?: string
-    lastName?: string
-    avatarUrl?: string
-  } | null>(data)
+  const [user, setUser] = useState<User | null>(data)
 
   if (token) setAuthorizationHeader(token)
 

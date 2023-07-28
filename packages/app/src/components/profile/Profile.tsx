@@ -25,7 +25,7 @@ export const Profile = () => {
     return null
   }
 
-  const { email, firstName, lastName, avatarUrl } = user
+  const { email, firstName, lastName, avatar } = user
   return (
     <Container sx={{ py: 8 }}>
       <Box
@@ -38,7 +38,7 @@ export const Profile = () => {
           Profile
         </Typography>
       </Box>
-      <Item elevation={24} variant="outlined">
+      <Item elevation={0} variant="outlined">
         <Grid container spacing={2}>
           <Grid xs={8} item>
             <Box>
@@ -60,7 +60,7 @@ export const Profile = () => {
           </Grid>
           <Grid xs={4} item>
             <Box>
-              <Avatar sx={{ width: 256, height: 256 }} src={avatarUrl} />
+              <Avatar sx={{ width: 256, height: 256 }} src={avatar} />
             </Box>
           </Grid>
         </Grid>

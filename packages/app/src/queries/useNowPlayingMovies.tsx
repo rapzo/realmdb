@@ -1,5 +1,5 @@
 import { useQuery } from "react-query"
-import { http } from "../providers/http"
+import { http } from "../providers/Http"
 import type { NowPlayingMovie } from "@realmdb/schemas"
 
 export function useNowPlayingMovies() {

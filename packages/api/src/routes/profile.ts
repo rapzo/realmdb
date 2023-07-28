@@ -1,11 +1,13 @@
 import type { Request, Response } from "express"
-import type { UserModel } from "../database"
+import type { UserService } from "../services"
 
 export const createGetProfile =
-  ({ User }: { User: UserModel }) =>
+  ({ userService }: { userService: UserService }) =>
   (req: Request, res: Response) => {
     const getUsers = async () => {
-      const users = await User.findOne({}).select("email firstName lastName")
+      const users = await userService
+        .getUserById(req.user!.id)
+        .select("-password -__v -createdAt -updatedAt -active")
 
       return res.json(users)
     }
