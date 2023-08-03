@@ -12,10 +12,10 @@ import {
   Typography,
 } from "@mui/material"
 import { styled } from "@mui/system"
-import { NowPlayingMovie } from "@realmdb/schemas"
-import { ReactEventHandler, useState } from "react"
 import { getPosterPath } from "../../helpers/image"
-import { http } from "../../providers/Http"
+import { useUpsertFavorite } from "./mutations"
+import type { ReactEventHandler } from "react"
+import type { NowPlayingMovie } from "@realmdb/schemas"
 
 const Card = styled(MuiCard)(({ theme }) => ({
   ...theme.typography.body2,
@@ -70,35 +70,17 @@ const Favorite = ({
   )
 }
 
-export const MovieCard = ({
-  movie,
-  isFavorite,
-}: {
-  movie: NowPlayingMovie
-  isFavorite: boolean
-}) => {
-  const [favorite, setFavorite] = useState(isFavorite)
+export const MovieCard = ({ movie }: { movie: NowPlayingMovie }) => {
+  const { mutate } = useUpsertFavorite()
 
-  const handleFavoriteClick: ReactEventHandler = (e) => {
-    e.preventDefault()
-
-    http
-      .post(`/movies/favorite`, {
-        movieId: movie.id,
-      })
-      .then(() => {
-        if (favorite) {
-          setFavorite(false)
-        } else {
-          setFavorite(true)
-        }
-      })
+  const handleFavoriteClick = async () => {
+    await mutate({ movieId: movie.id, isFavorite: !movie.isFavorite })
   }
 
   return (
     <Card>
       <CardActions sx={{ position: "absolute" }}>
-        <Favorite isFavorite={favorite} onClick={handleFavoriteClick} />
+        <Favorite isFavorite={movie.isFavorite} onClick={handleFavoriteClick} />
       </CardActions>
       <CardMoviePoster title={movie.title} poster={movie.poster} />
       <CardContent>

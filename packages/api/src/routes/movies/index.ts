@@ -12,7 +12,7 @@ export const createMoviesRouter = ({
 }): Router => {
   const router = Router()
 
-  router.get("/playing", nowPlaying({ tmdbService }))
+  router.get("/playing", nowPlaying({ tmdbService, userService }))
   router.get("/favorites", getFavorites({ userService }))
   router.post("/favorite", upsertFavorite({ tmdbService, userService }))
 

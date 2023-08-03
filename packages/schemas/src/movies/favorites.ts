@@ -4,7 +4,6 @@ export interface FavoritePayload {
 
 export interface Favorite extends FavoritePayload {
   id: string
-  updatedAt: Date
 }
 
 export interface FavoriteDocument extends FavoritePayload {

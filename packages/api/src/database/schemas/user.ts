@@ -3,9 +3,9 @@ import {
   // timingSafeEqual
 } from "crypto"
 import { Schema } from "mongoose"
-import type { Model, Types, Document } from "mongoose"
-import type { Favorite, UserProfile } from "@realmdb/schemas"
-import { FavoriteSchema, favoriteSchema } from "./favorite"
+import type { Model, Types } from "mongoose"
+import type { UserProfile } from "@realmdb/schemas"
+import { type FavoriteSchema, favoriteSchema } from "./favorite"
 
 const { AUTH_SALT, AUTH_ITERATIONS, AUTH_HASH_LENGTH, AUTH_DIGEST } =
   process.env
@@ -14,10 +14,10 @@ if (!AUTH_SALT || !AUTH_ITERATIONS || !AUTH_HASH_LENGTH || !AUTH_DIGEST) {
   throw new Error("Bad environment configuration")
 }
 
-export interface UserDocument extends UserProfile {
+export interface UserSchema extends UserProfile {
   _id: Types.ObjectId
+  favorites: FavoriteSchema[]
   password: string
-  favorites: Favorite[]
   recoveryToken?: string
   recoveryTokenExpiresAt?: Date
   active: boolean
@@ -26,22 +26,24 @@ export interface UserDocument extends UserProfile {
   deletedAt?: Date
 }
 
-type UserModelProps = {
+export type UserSchemaProps = {
   favorites: Types.DocumentArray<FavoriteSchema>
 
-  comparePassword: (password: string) => Promise<boolean>
-  generateToken: () => Promise<string>
+  comparePassword(password: string): Promise<boolean>
+  generateToken(): Promise<string>
 
-  isFavorite: (movieId: number) => boolean
-  addFavorite: (movieId: number) => Promise<UserSchema>
-  removeFavorite: (movieId: number) => Promise<UserSchema>
+  isFavorite(movieId: number): boolean
+  addFavorite(movieId: number): void
+  removeFavorite(movieId: number): void
 }
 
-export type UserModel = Model<UserDocument, unknown, UserModelProps>
+export type UserSchemaModel = Model<UserSchema, object, UserSchemaProps>
 
-export type UserSchema = UserDocument & UserModelProps & Document
-
-export const userSchema = new Schema<UserDocument, UserModel, UserModelProps>(
+export const userSchema = new Schema<
+  UserSchema,
+  UserSchemaModel,
+  UserSchemaProps
+>(
   {
     firstName: {
       type: String,
@@ -137,38 +139,31 @@ userSchema.pre("save", function (next) {
 //   return createPasswordHash(password).then((digest) => timingSafeEqual(this.password, digest))
 // }
 
-userSchema.method("generateToken", function (): Promise<string> {
+userSchema.methods.generateToken = function () {
   return Promise.resolve("token")
-})
+}
 
-userSchema.method<UserSchema>(
-  "comparePassword",
-  async function (password: string): Promise<boolean> {
-    try {
-      const hashedPassword = await createPasswordHash(password)
-      return this.password === hashedPassword
-    } catch (err) {
-      return false
-    }
-  },
-)
+userSchema.methods.comparePassword = async function (
+  password: string,
+): Promise<boolean> {
+  try {
+    const hashedPassword = await createPasswordHash(password)
+    return this.password === hashedPassword
+  } catch (err) {
+    return false
+  }
+}
 
-userSchema.method<UserSchema>("addFavorite", function (movieId: number) {
+userSchema.methods.addFavorite = function (movieId: number) {
   this.favorites.push({ movieId })
+}
 
-  return this.save()
-})
-
-userSchema.method<UserSchema>("removeFavorite", function (movieId: number) {
+userSchema.methods.removeFavorite = function (movieId: number) {
   this.favorites.pull({ movieId })
+}
 
-  return this.save()
-})
-
-userSchema.method<UserSchema>("isFavorite", function (movieId: number) {
-  const [fav] = this.favorites.filter((fav) => fav.movieId === movieId) as [
-    FavoriteSchema,
-  ]
+userSchema.methods.isFavorite = function (movieId: number) {
+  const [fav] = this.favorites.filter((fav) => fav.movieId === movieId)
 
   return !!fav
-})
+}

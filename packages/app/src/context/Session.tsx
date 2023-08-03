@@ -11,13 +11,6 @@ import { User } from "@realmdb/schemas"
 import { session } from "../services/session-service"
 import { setAuthorizationHeader } from "../providers/Http"
 
-// export interface User {
-//   email: string
-//   firstName?: string
-//   lastName?: string
-//   avatarUrl?: string
-// }
-
 interface SessionContext {
   user: User | null
 
@@ -129,9 +122,13 @@ export function SessionProvider(props: PropsWithChildren<{}>) {
     },
 
     async signOut() {
-      await signOut()
-
-      setUser(null)
+      try {
+        await signOut()
+      } catch (error) {
+        console.log("error signing out: ", error)
+      } finally {
+        setUser(null)
+      }
     },
   }
 

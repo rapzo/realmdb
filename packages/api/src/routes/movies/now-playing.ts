@@ -1,13 +1,32 @@
 import type { Handler, Request, Response } from "express"
-import type { TmdbService } from "../../services"
+import type { TmdbService, UserService } from "../../services"
 
 export const nowPlaying =
-  ({ tmdbService }: { tmdbService: TmdbService }): Handler =>
-  (_req: Request, res: Response) => {
-    tmdbService
-      .getNowPlayingMovies()
-      .then((movies) => {
-        return res.json(movies)
+  ({
+    tmdbService,
+    userService,
+  }: {
+    tmdbService: TmdbService
+    userService: UserService
+  }): Handler =>
+  (req: Request, res: Response) => {
+    Promise.all([
+      tmdbService.getNowPlayingMovies(),
+      userService.getUserById(req.user!.id),
+    ])
+      .then(([movies, user]) => {
+        if (!user) throw new Error("User not found")
+
+        const { favorites } = user
+
+        return res.json(
+          movies.map((movie) => ({
+            ...movie,
+            isFavorite: Boolean(
+              favorites.find((favorite) => favorite.movieId === movie.id),
+            ),
+          })),
+        )
       })
       .catch((error: Error) => {
         console.error(error)

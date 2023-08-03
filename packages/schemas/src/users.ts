@@ -1,20 +1,14 @@
 import { type Favorite } from "./movies"
 
-export interface SignUpPayload {
+export interface UserProfile {
   firstName: string
   lastName: string
   email: string
-  password: string
   avatar?: string
 }
 
-export interface UserProfile {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  avatar?: string
-  favorites?: Favorite[]
+export type SignUpPayload = Omit<UserProfile, "id"> & {
+  password: string
 }
 
 export interface SignInPayload {

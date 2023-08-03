@@ -1,19 +1,12 @@
-import type { Favorite } from "@realmdb/schemas"
 import { Container, Typography } from "@mui/material"
 import { Masonry } from "@mui/lab"
 import { MovieCard } from "./MovieCard"
-import { useNowPlayingMovies } from "../../queries/useNowPlayingMovies"
-import { useFavorites } from "../../queries/useFavorites"
-
-const isFavorite = (favorites: Favorite[], movieId: number) => {
-  return Boolean(favorites.find((favorite) => favorite.movieId === movieId))
-}
+import { useNowPlayingMovies } from "./queries"
 
 export const NowPlaying = () => {
   const { data: movies, isLoading: isMoviesLoading } = useNowPlayingMovies()
-  const { data: favorites, isLoading: isFavoritesLoading } = useFavorites()
 
-  if (isMoviesLoading || isFavoritesLoading) return null
+  if (isMoviesLoading) return null
 
   if (!movies) return null
 
@@ -25,11 +18,7 @@ export const NowPlaying = () => {
 
       <Masonry columns={3} spacing={2}>
         {movies.map((movie, i) => (
-          <MovieCard
-            key={`now-playing-movie-${i}`}
-            movie={movie}
-            isFavorite={isFavorite(favorites || [], movie.id)}
-          />
+          <MovieCard key={`now-playing-movie-${i}`} movie={movie} />
         ))}
       </Masonry>
     </Container>

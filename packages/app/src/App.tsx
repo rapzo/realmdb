@@ -5,7 +5,7 @@ import { SignIn } from "./components/authentication/SignIn"
 import { Layout } from "./components/layout/Layout"
 import { Profile } from "./components/profile/Profile"
 import { NowPlaying } from "./components/movies/NowPlaying"
-import { QueryClient, QueryClientProvider } from "react-query"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { PublicLayout } from "./components/layout/PublicLayout"
 import { Favorites } from "./components/movies/Favorites"
 

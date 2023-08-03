@@ -8,4 +8,5 @@ export interface NowPlayingMovie {
   voteAverage: number
   voteCount: number
   releaseDate: string
+  isFavorite: boolean
 }

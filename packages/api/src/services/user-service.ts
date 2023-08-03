@@ -1,8 +1,8 @@
 import type { SignUpPayload } from "@realmdb/schemas"
-import type { UserModel } from "../database"
+import type { UserSchemaModel } from "../database"
 
 export class UserService {
-  constructor(private readonly User: UserModel) {}
+  constructor(private readonly User: UserSchemaModel) {}
 
   async createUser({ email, password, firstName, lastName }: SignUpPayload) {
     const user = await this.User.create({
@@ -28,8 +28,12 @@ export class UserService {
 
     if (!user) throw new Error("User not found")
 
-    return user.isFavorite(movieId)
-      ? user.removeFavorite(movieId)
-      : user.addFavorite(movieId)
+    if (user.isFavorite(movieId)) {
+      user.removeFavorite(movieId)
+    } else {
+      user.addFavorite(movieId)
+    }
+
+    return await user.save()
   }
 }

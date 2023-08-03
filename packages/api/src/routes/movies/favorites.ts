@@ -1,6 +1,6 @@
 import type { Handler, Request, Response } from "express"
 import type { TmdbService, UserService } from "../../services"
-import type { Favorite, FavoritePayload } from "@realmdb/schemas"
+import type { FavoritePayload } from "@realmdb/schemas"
 
 interface FavoriteRequestPayload extends Request {
   body: FavoritePayload
@@ -10,9 +10,14 @@ export const getFavorites =
   ({ userService }: { userService: UserService }): Handler =>
   (req: Request, res: Response) => {
     const getFavorites = async () => {
-      const { favorites } = (await userService
+      const user = await userService
         .getUserById(req.user!.id)
-        .select("favorites")) as { favorites: Favorite[] }
+        .select("favorites")
+        .exec()
+
+      if (!user) return res.status(400).json({ error: "User not found" })
+
+      const favorites = user.favorites || []
 
       return res.json(favorites)
     }
